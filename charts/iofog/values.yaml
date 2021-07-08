@@ -1,0 +1,22 @@
+images:
+  repository: quay.io/ctrontesting
+  tag: latest
+
+admin:
+  email: admin@my.cluster
+  firstName: System
+  lastName: Admin
+  password: admin1234
+
+ingress:
+
+  domain: .my.cluster
+
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+
+  api:
+    protocol: https
+
+  viewer:
+    protocol: https

@@ -1,0 +1,70 @@
+{{- $ref := ( dict "root" . "name" "controller" ) -}}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "iofog.name" $ref }}
+  labels:
+    {{ include "iofog.labels" $ref | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{ include "iofog.selectorLabels" $ref | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "iofog.labels" $ref | nindent 8 }}
+    spec:
+      initContainers:
+        - name: init-config
+          image: registry.access.redhat.com/ubi8-minimal
+          imagePullPolicy: IfNotPresent
+          command:
+            - bash
+            - -c
+            - |
+                echo 'window.controllerConfig = { url: "{{- include "iofog.api-url" . -}}", user: {} }' | tee /etc/config/api/controller-config.js
+          volumeMounts:
+            - mountPath: /etc/config/api
+              name: config
+      containers:
+        - name: controller
+          image: {{ include "iofog.image" ( dict "root" . "image" "iofog-controller" ) }}
+          imagePullPolicy: {{ include "iofog.image-pull-policy" . }}
+          env:
+            - name: DB_PROVIDER
+            - name: DB_NAME
+            - name: DB_USERNAME
+            - name: DB_PASSWORD
+            - name: DB_HOST
+            - name: DB_PORT
+            - name: MSVC_PORT_PROVIDER
+            - name: PORT_ALLOC_ADDRESS
+            - name: ECN_NAME
+            - name: PID_BASE
+              value: /tmp
+            - name: VIEWER_PORT
+              value: "8080"
+          ports:
+            - name: controller
+              containerPort: 51121
+              protocol: TCP
+            - name: viewer
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              port: 51121
+              path: /api/v3/status
+          volumeMounts:
+            - mountPath: /usr/local/lib/node_modules/iofogcontroller/src/data/sqlite_files/
+              name: database
+              subPath: prod_database.sqlite
+            - mountPath: /etc/config/api
+              name: config
+      volumes:
+        - name: database
+          persistentVolumeClaim:
+            claimName:  {{ include "iofog.name" ( dict "root" . "name" "database" ) }}
+        - name: config
+          emptyDir: {}

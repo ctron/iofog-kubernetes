@@ -1,0 +1,18 @@
+{{- $ref := ( dict "root" . "name" "controller" ) -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "iofog.name" $ref }}
+  labels:
+    {{ include "iofog.labels" $ref | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{ include "iofog.selectorLabels" $ref | nindent 4 }}
+  ports:
+    - port: 51121
+      name: controller
+      targetPort: controller
+    - port: 8080
+      name: viewer
+      targetPort: viewer

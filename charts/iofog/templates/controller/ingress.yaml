@@ -1,0 +1,30 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ include "iofog.name" (dict "root" .) }}
+  labels:
+  {{- include "iofog.labels" (dict "root" .) | nindent 4 }}
+  annotations:
+  {{- .Values.ingress.annotations | toYaml | nindent 4 }}
+spec:
+  rules:
+    - host: {{ include "iofog.viewer-host" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "iofog.name" (dict "root" . "name" "controller" ) }}
+                port:
+                  name: viewer
+    - host: {{ include "iofog.api-host" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "iofog.name" (dict "root" . "name" "controller" ) }}
+                port:
+                  name: controller
