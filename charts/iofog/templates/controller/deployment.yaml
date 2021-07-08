@@ -27,6 +27,25 @@ spec:
           volumeMounts:
             - mountPath: /etc/config/api
               name: config
+        - name: init-user
+          image: {{ include "iofog.image" ( dict "root" . "image" "iofog-controller" ) }}
+          imagePullPolicy: {{ include "iofog.image-pull-policy" . }}
+          command:
+            - iofog-controller
+            - user
+            - add
+            - -f
+            - {{ .Values.admin.firstName | quote }}
+            - -l
+            - {{ .Values.admin.lastName | quote }}
+            - -e
+            - {{ .Values.admin.email | quote }}
+            - -p
+            - {{ .Values.admin.password | quote }}
+          volumeMounts:
+            - mountPath: /usr/local/lib/node_modules/iofogcontroller/src/data/sqlite_files/
+              name: database
+              subPath: prod_database.sqlite
       containers:
         - name: controller
           image: {{ include "iofog.image" ( dict "root" . "image" "iofog-controller" ) }}
