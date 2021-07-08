@@ -1,0 +1,6 @@
+[submodule "external/Controller"]
+	path = external/Controller
+	url = https://github.com/ctron/Controller.git
+[submodule "external/ECN-Viewer"]
+	path = external/ECN-Viewer
+	url = https://github.com/ctron/ECN-Viewer.git
