@@ -1,0 +1,26 @@
+{{- $ref := ( dict "root" . "name" "router" ) -}}
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "iofog.name" $ref }}
+  labels:
+    {{ include "iofog.labels" $ref | nindent 4 }}
+rules:
+  - verbs: [ "get", "list", "watch" ]
+    apiGroups: [ "" ]
+    resources: [ "pods" ]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "iofog.name" $ref }}
+  labels:
+    {{ include "iofog.labels" $ref | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "iofog.name" $ref }}
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: {{ include "iofog.name" $ref }}

@@ -64,6 +64,10 @@ spec:
               value: /tmp
             - name: VIEWER_PORT
               value: "8080"
+            - name: SystemImages_Proxy_1
+              value: "docker.io/iofog/proxy:2.0.2"
+            - name: SystemImages_Router_1
+              value: "docker.io/iofog/router:2.0.1"
           ports:
             - name: controller
               containerPort: 51121

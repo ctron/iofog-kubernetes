@@ -1,0 +1,60 @@
+{{- $ref := ( dict "root" . "name" "router" ) -}}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "iofog.name" $ref }}
+  labels:
+    {{ include "iofog.labels" $ref | nindent 4 }}
+data:
+  qdrouterd.conf: |
+    router {
+        mode: interior
+        id: default-router
+    }
+
+    listener {
+      host: 0.0.0.0
+      port: 5672
+      role: normal
+    }
+
+    sslProfile {
+      name: router-amqps
+      certFile: /etc/qpid-dispatch-certs/router-amqps/tls.crt
+      privateKeyFile: /etc/qpid-dispatch-certs/router-amqps/tls.key
+      caCertFile: /etc/qpid-dispatch-certs/router-amqps/ca.crt
+    }
+
+    listener {
+      host: 0.0.0.0
+      port: 9090
+      role: normal
+      http: true
+      httpRootDir: disabled
+      websockets: false
+      healthz: true
+      metrics: true
+    }
+
+    sslProfile {
+      name: router-internal
+      certFile: /etc/qpid-dispatch-certs/router-internal/tls.crt
+      privateKeyFile: /etc/qpid-dispatch-certs/router-internal/tls.key
+      caCertFile: /etc/qpid-dispatch-certs/router-internal/ca.crt
+    }
+
+    listener {
+      role: inter-router
+      host: 0.0.0.0
+      port: 55672
+      saslMechanisms: ANONYMOUS
+      authenticatePeer: no
+    }
+
+    listener {
+      role: edge
+      host: 0.0.0.0
+      port: 45672
+      saslMechanisms: ANONYMOUS
+      authenticatePeer: no
+    }

@@ -2,7 +2,7 @@
 
 all: build tag push
 
-CONTAINERS = base controller
+CONTAINERS = agent base controller
 VERSION ?= latest
 CONTAINER_REGISTRY ?= ghcr.io/ctron
 

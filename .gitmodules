@@ -4,3 +4,6 @@
 [submodule "external/ECN-Viewer"]
 	path = external/ECN-Viewer
 	url = https://github.com/ctron/ECN-Viewer.git
+[submodule "external/Agent"]
+	path = external/Agent
+	url = https://github.com/ctron/Agent.git

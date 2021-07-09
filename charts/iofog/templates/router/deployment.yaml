@@ -1,0 +1,121 @@
+{{- $ref := ( dict "root" . "name" "router" ) -}}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "iofog.name" $ref }}
+  labels:
+    {{ include "iofog.labels" $ref | nindent 4 }}
+    skupper.io/component: "router"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{ include "iofog.selectorLabels" $ref | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "iofog.labels" $ref | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "iofog.name" $ref }}
+      containers:
+        - name: router
+          image: docker.io/iofog/router:2.0.1
+          imagePullPolicy: IfNotPresent
+          command:
+            - "/qpid-dispatch/launch.sh"
+          env:
+            - name: APPLICATION_NAME
+              value: router
+            - name: QDROUTERD_AUTO_MESH_DISCOVERY
+              value: QUERY
+            - name: QDROUTERD_CONF
+              value: |
+                router {
+                  mode: interior
+                  id: default-router
+                }
+
+                listener {
+                  host: 0.0.0.0
+                  port: 5672
+                  role: normal
+                }
+
+                sslProfile {
+                  name: router-amqps
+                  certFile: /etc/qpid-dispatch-certs/router-amqps/tls.crt
+                  privateKeyFile: /etc/qpid-dispatch-certs/router-amqps/tls.key
+                  caCertFile: /etc/qpid-dispatch-certs/router-amqps/ca.crt
+                }
+
+                listener {
+                  host: 0.0.0.0
+                  port: 9090
+                  role: normal
+                  http: true
+                  httpRootDir: disabled
+                  websockets: false
+                  healthz: true
+                  metrics: true
+                }
+
+                sslProfile {
+                  name: router-internal
+                  certFile: /etc/qpid-dispatch-certs/router-internal/tls.crt
+                  privateKeyFile: /etc/qpid-dispatch-certs/router-internal/tls.key
+                  caCertFile: /etc/qpid-dispatch-certs/router-internal/ca.crt
+                }
+
+                listener {
+                  role: inter-router
+                  host: 0.0.0.0
+                  port: 55672
+                  saslMechanisms: ANONYMOUS
+                  authenticatePeer: no
+                }
+
+                listener {
+                  role: edge
+                  host: 0.0.0.0
+                  port: 45672
+                  saslMechanisms: ANONYMOUS
+                  authenticatePeer: no
+                }
+
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+
+          ports:
+            - containerPort: 45672
+              name: edge
+              protocol: TCP
+            - containerPort: 55672
+              name: interior
+              protocol: TCP
+
+          readinessProbe:
+            httpGet:
+              port: 9090
+              path: /healthz
+
+          volumeMounts:
+            - name: config
+              mountPath: /etc/qpid-dispatch/qdrouterd.conf
+#            - name: internal
+#              mountPath: /etc/qpid-dispatch-certs/router-internal
+#            - name: amqps
+#              mountPath: /etc/qpid-dispatch-certs/amqps
+
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "iofog.name" $ref }}
+
+
+
