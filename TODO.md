@@ -1,7 +1,7 @@
 * [ ] Create default router
 
   ~~~
-  TOKEN=$(iofog-controller user generate-token -e admin@my.cluster | jq -r .accessToken )
+  TOKEN=$(kubectl exec -c controller deployment/iofog-controller -- iofog-controller user generate-token -e admin@my.cluster | jq -r .accessToken )
   http -v PUT https://api-iofog.apps.wonderful.iot-playground.org/api/v3/router Authorization:$TOKEN host=router-iofog.apps.wonderful.iot-playground.org
   ~~~
 
