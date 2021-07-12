@@ -18,6 +18,8 @@ The following patches are changes on top of the Eclipse ioFog 2.0-ish version:
 * Controller
   * The builder image uses a Node 8 based image, which fails to get some dependencies. This repository changes this
     to a Node 14 build and updates some dependencies to make it compatible with this newer Node version.
+  * The base directory of the PID cannot be configured. The process tries to write to a path inside the container
+    image which is immutable. There is a patch which allows to configure the base directory of the PID files.
 * ECV-Viewer
   * The ECN-Viewer constructs a URL to the API, which again enforces the port `51121`, and also tries to use the viewer
     URL as the API endpoint. As you can easily configure the API information on the server side, there is patch
@@ -33,6 +35,8 @@ The following patches are changes on top of the Eclipse ioFog 2.0-ish version:
   * The agent has a baked-in TLS certificate, which is the only allowed server side trust anchor. If you have a server
     side certificate which is accepted by standard OS trust anchors, this won't work. So there is a patch in this agent
     to also use the system trust anchors in addition.
+  * Change the configuration of the random source, pointing Java to the random source, instead of re-wiring the file
+    system using symbolic links, which breaks in some build scenarios.
 
 ## Register an agent
 
@@ -84,3 +88,14 @@ The following patches are changes on top of the Eclipse ioFog 2.0-ish version:
     ~~~shell
     iofogctl deploy -f deploy.yaml
     ~~~
+
+## Deploy workload
+
+~~~yaml
+apiVersion: iofog.org/v2
+kind: Application
+metadata:
+  name: hello-web
+spec:
+~~~
+
