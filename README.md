@@ -57,10 +57,10 @@ The following patches are changes on top of the Eclipse ioFog 2.0-ish version:
     apiVersion: iofog.org/v2
     kind: AgentConfig
     metadata:
-        name: agent-1
+      name: agent-1
     spec:
-        name: agent-1
-        host: iofog-agent-1
+      name: agent-1
+      host: iofog-agent-1
     ~~~
   
   * Then register the agent
