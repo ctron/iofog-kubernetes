@@ -2,7 +2,7 @@
     {{- with .Values.ingress.viewer.host -}}
         {{- . -}}
     {{- else -}}
-        viewer-{{ .Release.Namespace}}{{ .Values.ingress.domain -}}
+        viewer-{{ .Release.Namespace }}{{ .Values.ingress.domain | default .Values.global.domain -}}
     {{- end }}
 {{- end }}
 
@@ -14,7 +14,7 @@
     {{- with .Values.ingress.api.host -}}
         {{- . -}}
     {{- else -}}
-        api-{{ .Release.Namespace}}{{ .Values.ingress.domain -}}
+        api-{{ .Release.Namespace }}{{ .Values.ingress.domain | default .Values.global.domain -}}
     {{- end }}
 {{- end }}
 

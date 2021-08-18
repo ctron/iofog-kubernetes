@@ -1,3 +1,6 @@
+global:
+  domain: .my.cluster
+
 images:
   repository: quay.io/ctrontesting
   tag: latest
@@ -10,7 +13,8 @@ admin:
 
 ingress:
 
-  domain: .my.cluster
+  # domain all overriding the global domain
+  # domain: .my.cluster
 
   annotations:
     kubernetes.io/ingress.class: "nginx"
